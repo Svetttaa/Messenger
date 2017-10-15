@@ -6,11 +6,10 @@ using System.Threading.Tasks;
 
 namespace Mes.Model
 {
-    public class User
+    class Chat
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public byte[] Avatar { get; set; }
-        public string Password { get; set; }
+        public IEnumerable<User> Members { get; set; }
     }
 }
