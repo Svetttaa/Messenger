@@ -12,5 +12,6 @@ namespace Mes.Model
         public string Name { get; set; }
         public byte[] Avatar { get; set; }
         public string Password { get; set; }
+        public bool Disabled { get; set; } = false;
     }
 }

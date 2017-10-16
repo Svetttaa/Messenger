@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mes.Model
 {
-    class Message
+    public class Message
     {
         public Guid Id { get; set; }
         public string Text { get; set; }
