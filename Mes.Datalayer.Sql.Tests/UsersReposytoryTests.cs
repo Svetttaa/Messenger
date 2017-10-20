@@ -12,55 +12,73 @@ namespace Mes.Datalayer.Sql.Tests
     [TestClass]
     public class UsersReposytoryTests
     {
-        private readonly string _connectionString= @"Server=sveta-lt\SQLExpress;AttachDbFilename=C:\Program Files\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQL\DATA\DBMes.mdf;Database=DBMes;
+        private readonly static string _connectionString= @"Server=sveta-lt\SQLExpress;AttachDbFilename=C:\Program Files\Microsoft SQL Server\MSSQL12.SQLEXPRESS\MSSQL\DATA\DBMes.mdf;Database=DBMes;
 Trusted_Connection=Yes;";
-        private readonly List<Guid> _tempUsers = new List<Guid>();//список с id юзеров
+
+        UsersRepository repository = new UsersRepository(_connectionString);
+
         [TestMethod]
         public void ShouldCreateUser()
         {
-            //arrange подготовка
+            //arrange
             var user = new User
             {
                 Name = "testUser",
-                Avatar = Encoding.UTF8.GetBytes("ava"),
-                Password = "password",
-                Disabled=false
+                
+                Password = "password"
             };
 
-            //act действия
-            var repository = new UsersRepository(_connectionString);
+           //act
             var result = repository.Create(user);
 
-            _tempUsers.Add(result.Id);
-
-            //asserts проверка результатов
+            //asserts
             Assert.AreEqual(user.Name, result.Name);
-            Assert.AreEqual(user.Avatar, result.Avatar);
+            
             Assert.AreEqual(user.Password, result.Password);
-            Assert.AreEqual(user.Disabled, result.Disabled);
+            Assert.AreEqual(user.Disabled,result.Disabled);
+
         }
         [TestMethod]
         public void ShouldDeleteUser()
         {
-            //arrange подготовка
+            //arrange
             var user = new User
             {
                 Name = "testUser",
-                Avatar = Encoding.UTF8.GetBytes("ava"),
-                Password = "password",
-                Disabled = false
+               
+                Password = "password"
             };
 
-            //act действия
-            var repository = new UsersRepository(_connectionString);
-            var newuser=repository.Create(user);
-            _tempUsers.Add(newuser.Id);
-            repository.Delete(newuser.Id);
+            //act
+            repository.Create(user);
+            repository.Delete(user.Id);
+            var result=new UsersRepository(_connectionString).Get(user.Id);
 
-            //asserts проверка результатов
-            //Assert.AreEqual(user.Disabled, false);
-            Assert.AreEqual(true, newuser.Disabled);
+            //asserts 
+            Assert.AreEqual(true, result.Disabled);  
+        }
+        [TestMethod]
+        public void ShouldGetUser()
+        {
+
+            //arrange
+            var user = new User
+            {
+                Name = "testUser",
+                Password = "password"
+            };
+
+            //act
+            var result=repository.Create(user);
+            User gottenUser = new UsersRepository(_connectionString).Get(result.Id);
+            //var gottenUser = repository.Get(result.Id);
+           
+            //asserts 
+            Assert.AreEqual(user.Name, gottenUser.Name);
+            Assert.AreEqual(user.Id, gottenUser.Id);
+            Assert.AreEqual(user.Password, gottenUser.Password);
             
+            Assert.AreEqual(user.Disabled, gottenUser.Disabled);
         }
         //[TestCleanup]
         //public void Clean()

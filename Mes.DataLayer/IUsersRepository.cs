@@ -12,7 +12,7 @@ namespace Mes.DataLayer
         User Create(User user);
         User Get(Guid id);
         void Delete(Guid id);
-        bool ChangeAvatar(Guid id,byte[] ava);
+        bool ChangeAvatar(Guid id,string ava);
         bool ChangeName(Guid id,string name);
         bool ChangePassword(Guid id,string pass);
     }

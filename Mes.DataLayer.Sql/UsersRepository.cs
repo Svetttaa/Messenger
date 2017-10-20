@@ -8,6 +8,7 @@ using Mes.DataLayer;
 using Mes.Model;
 
 
+
 namespace Mes.DataLayer.Sql
 {
     public class UsersRepository : IUsersRepository
@@ -18,28 +19,14 @@ namespace Mes.DataLayer.Sql
             _connectionString = connectionString;
         }
         
-        public bool ChangeAvatar(Guid id, byte[]ava)
+        public bool ChangeAvatar(Guid id, string ava)
         {
             using (SqlConnection connection = new SqlConnection())
             {
-                connection.ConnectionString = _connectionString;
-                connection.Open();
-                using (var command = connection.CreateCommand())
-                {
-                    command.CommandText = $"select Avatar from Users where Id='{id}'";
-                    command.ExecuteNonQuery();
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (!reader.Read())
-                        {
-                            throw new ArgumentException($"Пользователь с id {id} не найден");
-                            return false;
-                        }
-                        command.CommandText = $"update Users set Avatar='{ava}' where Id='{id}'";
-                        return true;
-                    }
-                }
+                
+                
             }
+            return true;
         }
 
         public bool ChangeName(Guid id,string name)
@@ -100,9 +87,10 @@ namespace Mes.DataLayer.Sql
                 using (var command = connection.CreateCommand())
                 {
                     user.Id = Guid.NewGuid();
-                    command.CommandText = $"insert into Users (Id, Name, Avatar, Password) values " +
-                        $"('{user.Id}','{user.Name}', '{user.Avatar}', '{user.Password}')";
+                    command.CommandText = $"insert into Users (Id, Name, Password) values " +
+                        $"('{user.Id}','{user.Name}', '{user.Password}')";
                     command.ExecuteNonQuery();
+                    user.Disabled = false;
                     return user;
                 }
             }
@@ -116,7 +104,7 @@ namespace Mes.DataLayer.Sql
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"update Users set Disabled='true' where Id='{id}'";
+                    command.CommandText = $"update Users set Disabled='1' where Id='{id}'";
                     command.ExecuteNonQuery();
                 }
             }
@@ -130,7 +118,7 @@ namespace Mes.DataLayer.Sql
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"select (Name,Avatar, Password) from Users where Id='{id}'";
+                    command.CommandText = $"select Name,Password,Id,Disabled from Users where Id='{id}'";
                     command.ExecuteNonQuery();
                     using (var reader = command.ExecuteReader())
                     {
@@ -138,8 +126,8 @@ namespace Mes.DataLayer.Sql
                             throw new ArgumentException($"Пользователь с id {id} не найден");
                         return new User
                         {
-                            
-                            Avatar = reader.GetSqlBinary(reader.GetOrdinal("Avatar")).Value,
+                            Id=reader.GetGuid(reader.GetOrdinal("Id")),
+                            Disabled=reader.GetBoolean(reader.GetOrdinal("Disabled")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
                             Password = reader.GetString(reader.GetOrdinal("Password"))
                         };
