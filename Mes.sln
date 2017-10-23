@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mes.DataLayer", "Mes.DataLa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mes.DataLayer.Sql", "Mes.DataLayer.Sql\Mes.DataLayer.Sql.csproj", "{A6830DDF-1740-4130-95FD-24EF493E0B92}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mes.Datalayer.Sql.Tests", "Mes.Datalayer.Sql.Tests\Mes.Datalayer.Sql.Tests.csproj", "{35660C5C-8F10-4789-A0EB-3CD0899AA132}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mes.DataLayer.Sql.Tests", "Mes.Datalayer.Sql.Tests\Mes.DataLayer.Sql.Tests.csproj", "{35660C5C-8F10-4789-A0EB-3CD0899AA132}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

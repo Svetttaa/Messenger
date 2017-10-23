@@ -10,8 +10,8 @@ namespace Mes.DataLayer
     public interface IMessagesRepository
     {
         void Delete(Guid messageId);
-        Message Sent(Guid userId, Guid chatId, string text, string attach, DateTime date);
+        Message Send(Guid userId, Guid chatId, string text, string attach);
         Message Change(Guid messageId);
-
+        IEnumerable<Message> GetAmount(Guid chatId,int skip,int amount);
     }
 }

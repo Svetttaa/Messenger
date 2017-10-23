@@ -46,9 +46,11 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="UsersReposytoryTests.cs" />
+    <Compile Include="ChatsRepositoryTests.cs" />
+    <Compile Include="UsersRepositoryTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
