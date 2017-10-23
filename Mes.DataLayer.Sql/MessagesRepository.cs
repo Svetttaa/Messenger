@@ -8,7 +8,7 @@ using Mes.Model;
 
 namespace Mes.DataLayer.Sql
 {
-    class MessagesRepository : IMessagesRepository
+   public class MessagesRepository : IMessagesRepository
     {
         private readonly string _connectionString;
         private readonly IUsersRepository _usersRepository;
@@ -37,8 +37,8 @@ namespace Mes.DataLayer.Sql
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $"select * from Messages where ChatId='{chatId}' order by Date " +
-                        $"offset '{skip}' rows" +
-                        $"fetch next '{amount}' rows only";
+                        $"offset {skip} rows" +
+                        $" fetch next {amount} rows only";
                     using (var reader = command.ExecuteReader())
                     {
                         while (reader.Read())

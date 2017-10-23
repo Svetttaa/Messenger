@@ -154,19 +154,19 @@ namespace Mes.DataLayer.Sql
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"select ChatMembers.Id,Chats.Name from " +
+                    command.CommandText = $"select ChatMembers.ChatId,Chats.Name from " +
                         $"ChatMembers " +
-                        $" inner join ChatMembers.Id=Chats.Id where ChatMembers.Id='{idUser}'";
-                    command.ExecuteNonQuery();
+                        $" inner join Chats on ChatMembers.ChatId=Chats.Id where ChatMembers.UserId='{idUser}'";
+                    
                     using (var reader = command.ExecuteReader())
                     {
                         if (!reader.Read())
                             throw new ArgumentException($"Пользователь с id {idUser} не состоит ни в одном чате");
                        yield return new Chat
                         {
-                            Id = reader.GetGuid(reader.GetOrdinal("Id")),
+                            Id = reader.GetGuid(reader.GetOrdinal("ChatId")),
                             Name = reader.GetString(reader.GetOrdinal("Name")),
-                            Members= GetChatMembers(reader.GetGuid(reader.GetOrdinal("Id")))
+                            Members= GetChatMembers(reader.GetGuid(reader.GetOrdinal("ChatId")))
                         };
                     }
                 }
