@@ -19,7 +19,7 @@ namespace Mes.DataLayer.Sql
             _connectionString = connectionString;
             _usersRepository = usersRepository;
         }
-        public bool AddMembers(IEnumerable<Guid> members, Guid idChat)
+        public void AddMembers(IEnumerable<Guid> members, Guid idChat)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -31,7 +31,7 @@ namespace Mes.DataLayer.Sql
                         command.CommandText = $"insert into ChatMembers (UserId, ChatId) values ('{x}','{idChat}')";
                     }
                     command.ExecuteNonQuery();
-                    return true;
+                    
                 }
             }
         }
@@ -54,9 +54,7 @@ namespace Mes.DataLayer.Sql
                     using (var command = connection.CreateCommand())
                     {
                         command.Transaction = transaction;
-                        command.CommandText = "insert into chats (id, name) values (@id, @name)";
-                        command.Parameters.AddWithValue("@id", chat.Id);
-                        command.Parameters.AddWithValue("@name", chat.Name);
+                        command.CommandText = $"insert into chats (id, name) values ('{chat.Id}', N'{chat.Name}')";
                         command.ExecuteNonQuery();
                     }
                     foreach (var userId in members)
@@ -64,9 +62,7 @@ namespace Mes.DataLayer.Sql
                         using (var command = connection.CreateCommand())
                         {
                             command.Transaction = transaction;
-                            command.CommandText = "insert into ChatMembers (ChatId, UserId) values (@chatid, @userid)";
-                            command.Parameters.AddWithValue("@chatid", chat.Id);
-                            command.Parameters.AddWithValue("@userid", userId);
+                            command.CommandText = $"insert into ChatMembers (ChatId, UserId) values ('{chat.Id}', '{userId}')";
                             command.ExecuteNonQuery();
                         }
                     }
@@ -77,20 +73,26 @@ namespace Mes.DataLayer.Sql
             }  
         }
 
-        public void Delete(Guid idChat)
+        public void Delete(Guid idChat,Guid idUser)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
                 using (var command = connection.CreateCommand())
                 {
+                    command.CommandText = $"select * from ChatMembers where ChatId='{idChat}'and UserId='{idUser}'";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                            throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
+                    }
                     command.CommandText = $"delete from Chats where Id='{idChat}'";
                     command.ExecuteNonQuery();
                 }
             }
         }
 
-        public bool DeleteMembers(IEnumerable<Guid> members, Guid idChat)
+        public void DeleteMembers(IEnumerable<Guid> members, Guid idChat)
         {
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
@@ -102,7 +104,7 @@ namespace Mes.DataLayer.Sql
                         command.CommandText = $"delete from ChatMembers where ChatId='{idChat}' and UserId='{x}'";
                     }
                     command.ExecuteNonQuery();
-                    return true;
+                    
                 }
             }
         }
@@ -116,7 +118,7 @@ namespace Mes.DataLayer.Sql
                 using (var command = connection.CreateCommand())
                 {
                     command.CommandText = $"select Name,Id from Chats where Id='{idChat}'";
-                    command.ExecuteNonQuery();
+                    
                     using (var reader = command.ExecuteReader())
                     {
                         if (!reader.Read())

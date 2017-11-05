@@ -23,7 +23,7 @@ Trusted_Connection=Yes;";
             //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
 
@@ -42,7 +42,7 @@ Trusted_Connection=Yes;";
             //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
 
@@ -60,7 +60,7 @@ Trusted_Connection=Yes;";
             //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
 
@@ -81,7 +81,7 @@ Trusted_Connection=Yes;";
             //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             //act
@@ -97,7 +97,7 @@ Trusted_Connection=Yes;";
             //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             //act
@@ -113,7 +113,7 @@ Trusted_Connection=Yes;";
         {            //arrange
             var user = new User
             {
-                Name = "testUser",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             //act
@@ -122,6 +122,33 @@ Trusted_Connection=Yes;";
             Image image = new Bitmap(600, 600);
 
             repository.ChangeAvatar(result.Id, image);
+        }
+        [TestMethod]
+        public void ShouldLoginFalse()
+        {            
+            try
+            {
+                var result = repository.Login("login", "password1");
+                Assert.Fail();
+            }
+            catch (ArgumentException e)
+            {
+                Assert.AreEqual("Неверное имя или пароль", e.Message);
+            }
+        }
+        [TestMethod]
+        public void ShouldLoginTrue()
+        {            //arrange
+            var user = new User
+            {
+                Name = Guid.NewGuid().ToString(),
+                Password = "password"
+            };
+            //act
+            repository.Create(user);
+            var result = repository.Login(user.Name, "password");
+            Assert.AreEqual(user.Name, result.Name);
+            Assert.AreEqual(user.Password, result.Password);
         }
         //[TestCleanup]
         //public void Clean()

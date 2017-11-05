@@ -12,10 +12,11 @@ namespace Mes.DataLayer
     public interface IUsersRepository
     {
         User Create(User user);
+        User Login(string name,string password);
         User Get(Guid id);
         void Delete(Guid id);
-        bool ChangeAvatar(Guid id,Image file);
-        bool ChangeName(Guid id,string name);
-        bool ChangePassword(Guid id,string pass);
+        void ChangeAvatar(Guid id,Image file);
+        void ChangeName(Guid id,string name);
+        void ChangePassword(Guid id,string pass);
     }
 }

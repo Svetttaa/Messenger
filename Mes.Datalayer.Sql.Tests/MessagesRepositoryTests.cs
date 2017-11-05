@@ -20,12 +20,12 @@ namespace Mes.Datalayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -33,11 +33,11 @@ namespace Mes.Datalayer.Sql.Tests
             user2 = userRepository.Create(user2);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
-            var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
+            var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "HellowChat");
 
             Message message = new Message
             {
-                Text = "message",
+                Text = "HelloWorld",
                 UserId = user1.Id,
                 ChatId = resultCreate.Id,
             };
@@ -52,12 +52,12 @@ namespace Mes.Datalayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);

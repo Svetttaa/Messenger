@@ -21,12 +21,12 @@ namespace Mes.DataLayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -51,12 +51,12 @@ namespace Mes.DataLayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -66,7 +66,7 @@ namespace Mes.DataLayer.Sql.Tests
             _tempUsers.Add(user2.Id);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
             var result =chatRepository.Create(_tempUsers, "NewChat");
-            chatRepository.Delete(result.Id);
+            chatRepository.Delete(result.Id,user1.Id);
             chatRepository.GetChat(result.Id);
         }
         [TestMethod]
@@ -74,12 +74,12 @@ namespace Mes.DataLayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -96,12 +96,12 @@ namespace Mes.DataLayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -119,12 +119,12 @@ namespace Mes.DataLayer.Sql.Tests
             _tempUsers1.Clear();
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -143,12 +143,12 @@ namespace Mes.DataLayer.Sql.Tests
         {
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);
@@ -169,17 +169,17 @@ namespace Mes.DataLayer.Sql.Tests
 
             var user1 = new User
             {
-                Name = "testUser1",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user2 = new User
             {
-                Name = "testUser2",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             var user3 = new User
             {
-                Name = "testUser3",
+                Name = Guid.NewGuid().ToString(),
                 Password = "password"
             };
             UsersRepository userRepository = new UsersRepository(_connectionString);

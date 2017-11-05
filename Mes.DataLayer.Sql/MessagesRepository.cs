@@ -53,32 +53,41 @@ namespace Mes.DataLayer.Sql
                           };
                     }
                 }
-
-
             }
         }
 
         public Message Send(Guid userId, Guid chatId, string text, string attach)
         {
+
             using (SqlConnection connection = new SqlConnection(_connectionString))
             {
                 connection.Open();
-                var message = new Message
-                {
-                    Id = Guid.NewGuid(),
-                    Text = text,
-                    Date = DateTime.Now,
-                    AttachPath = attach,
-                    ChatId = chatId,
-                    UserId = userId
-                };
                 using (var command = connection.CreateCommand())
                 {
-                    command.CommandText = $"insert into Messages (Text,Date,AttachPath,ChatId,UserId,Id) " +
-                        $"values ('{text}','{message.Date}','{attach}','{chatId}','{userId}','{message.Id}')";
-                    command.ExecuteNonQuery();
+                    command.CommandText = $"select * from ChatMembers where ChatId='{chatId}'and UserId='{userId}'";
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (!reader.Read())
+                            throw new ArgumentException($"Пользователя с id {userId} нет в данном чате");
+                    }
+
+                    var message = new Message
+                    {
+                        Id = Guid.NewGuid(),
+                        Text = text,
+                        Date = DateTime.Now,
+                        AttachPath = attach,
+                        ChatId = chatId,
+                        UserId = userId
+                    };
+
+                    {
+                        command.CommandText = $"insert into Messages (Text,Date,AttachPath,ChatId,UserId,Id) " +
+                            $"values (N'{text}','{message.Date}',N'{attach}','{chatId}','{userId}','{message.Id}')";
+                        command.ExecuteNonQuery();
+                    }
+                    return message;
                 }
-                return message;
             }
         }
     }
