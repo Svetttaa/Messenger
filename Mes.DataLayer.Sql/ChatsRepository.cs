@@ -211,8 +211,9 @@ namespace Mes.DataLayer.Sql
                             }
                                
                         }
-                        return users;
+                        
                         logger.Debug($"Получен список пользователей чата с id {idChat} ");
+                        return users;
                     }
                 }
             }
