@@ -33,6 +33,8 @@
             this.txtLogin = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
+            this.warningLogin = new System.Windows.Forms.Label();
+            this.warningPassword = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnLogin
@@ -46,6 +48,7 @@
             this.btnLogin.TabIndex = 4;
             this.btnLogin.Text = "Вход";
             this.btnLogin.UseVisualStyleBackColor = false;
+            this.btnLogin.Click += new System.EventHandler(this.btnLogin_Click);
             // 
             // txtPassword
             // 
@@ -84,10 +87,34 @@
             this.label2.TabIndex = 8;
             this.label2.Text = "Пароль";
             // 
+            // hidLblLogin
+            // 
+            this.warningLogin.AutoSize = true;
+            this.warningLogin.ForeColor = System.Drawing.Color.DarkBlue;
+            this.warningLogin.Location = new System.Drawing.Point(72, 96);
+            this.warningLogin.Name = "hidLblLogin";
+            this.warningLogin.Size = new System.Drawing.Size(81, 13);
+            this.warningLogin.TabIndex = 9;
+            this.warningLogin.Text = "Введите логин";
+            this.warningLogin.Visible = false;
+            // 
+            // hidLblPassword
+            // 
+            this.warningPassword.AutoSize = true;
+            this.warningPassword.ForeColor = System.Drawing.Color.DarkBlue;
+            this.warningPassword.Location = new System.Drawing.Point(72, 178);
+            this.warningPassword.Name = "hidLblPassword";
+            this.warningPassword.Size = new System.Drawing.Size(88, 13);
+            this.warningPassword.TabIndex = 10;
+            this.warningPassword.Text = "Введите пароль";
+            this.warningPassword.Visible = false;
+            // 
             // LoginControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.Controls.Add(this.warningPassword);
+            this.Controls.Add(this.warningLogin);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtLogin);
@@ -107,5 +134,7 @@
         private System.Windows.Forms.TextBox txtLogin;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.Label warningLogin;
+        private System.Windows.Forms.Label warningPassword;
     }
 }

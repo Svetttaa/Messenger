@@ -6,6 +6,8 @@ using System.Data.SqlClient;
 using System.Threading.Tasks;
 using Mes.Model;
 using NLog;
+using System.Data;
+using System.Net;
 
 
 
@@ -22,32 +24,32 @@ namespace Mes.DataLayer.Sql
             _connectionString = connectionString;
             _usersRepository = usersRepository;
         }
-        public void AddMembers(IEnumerable<Guid> members, Guid idChat)
+
+        public void AddMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser)
         {
-            logger.Debug($"Попытка добавления списка пользователей в чат id {idChat}");
+            logger.Debug($"Попытка добавления списка пользователей в чат id {idChat} пользователем с id {idUser}");
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+                if (Helper.CheckUserInChat(_connectionString, idUser, idChat) == false)
                 {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        foreach (var x in members)
-                        {
-                            command.CommandText = $"insert into ChatMembers (UserId, ChatId) values ('{x}','{idChat}')";
-                        }
-                        command.ExecuteNonQuery();
-                        logger.Debug($"Список пользователей добавлен в чат id {idChat}");
-                    }
+                    logger.Error($"Пользователя с id {idUser} нет в данном чате");
+                    throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
                 }
+                foreach (var x in members)
+                {
+                    Helper.ExecuteQuery(_connectionString, $"insert into ChatMembers (UserId, ChatId) values ('{x}','{idChat}')");
+                }
+
+                logger.Debug($"Список пользователей добавлен в чат id {idChat} пользователем с id {idUser}");
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex,$"Ошибка при попытке добавления списка пользователей в чат id {idChat}");
-                throw ex;
+                logger.Error(ex, $"Ошибка при попытке добавления списка пользователей в чат id {idChat}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
-
+        // TODO: Сделать дополнительный метод
         public Chat Create(IEnumerable<Guid> members, string name)
         {
             logger.Debug($"Попытка создания чата с именем {name}");
@@ -63,7 +65,6 @@ namespace Mes.DataLayer.Sql
                         {
                             Name = name,
                             Id = Guid.NewGuid(),
-                            // Members = members;
                         };
 
                         using (var command = connection.CreateCommand())
@@ -83,74 +84,77 @@ namespace Mes.DataLayer.Sql
                         }
                         transaction.Commit();
                         chat.Members = members.Select(x => _usersRepository.Get(x));
-                        logger.Debug( $"Чат с именем {name} создан");
+                        logger.Debug($"Чат с именем {name} создан");
                         return chat;
                     }
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"Ошибка при попытке создания чата с именем {name}");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
-        public void Delete(Guid idChat,Guid idUser)
+        public void Delete(Guid idChat, Guid idUser)
         {
             logger.Debug($"Попытка удаления чата с id {idChat} пользователем с id {idUser}");
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+
+                if (Helper.CheckUserInChat(_connectionString, idUser, idChat) == false)
                 {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select * from ChatMembers where ChatId='{idChat}'and UserId='{idUser}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error( $"Пользователя с id {idUser} нет в данном чате");
-                                throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
-                            }
-                               
-                        }
-                        command.CommandText = $"delete from Chats where Id='{idChat}'";
-                        command.ExecuteNonQuery();
-                        logger.Debug($"Удаление чата с id {idChat} пользователем с id {idUser}");
-                    }
+                    logger.Error($"Пользователя с id {idUser} нет в данном чате");
+                    throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
                 }
+
+                Helper.ExecuteQuery(_connectionString, $"delete from Chats where Id='{idChat}'");
+
+                logger.Debug($"Удаление чата с id {idChat} пользователем с id {idUser}");
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"Ошибка при попытке создания  удаления чата с id {idChat} пользователем с id {idUser}");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
-        public void DeleteMembers(IEnumerable<Guid> members, Guid idChat)
+        public void DeleteMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser)
         {
-            logger.Debug($"Попытка удаления списка пользователей из чата с id {idChat} ");
+            logger.Debug($"Попытка удаления списка пользователей из чата с id {idChat} пользователем с id {idUser}");
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+                if (Helper.CheckUserInChat(_connectionString, idUser, idChat) == false)
                 {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        foreach (var x in members)
-                        {
-                            command.CommandText = $"delete from ChatMembers where ChatId='{idChat}' and UserId='{x}'";
-                        }
-                        command.ExecuteNonQuery();
-                        logger.Debug($"Пользователи удалены из чата с id {idChat} ");
-                    }
+                    logger.Error($"Пользователя с id {idUser} нет в данном чате");
+                    throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
                 }
+                if ((int)Helper.ExecuteScalar(_connectionString, $"select count(*) from ChatMembers where ChatId='{idChat}'") == members.Count())
+                {
+                    Helper.ExecuteQuery(_connectionString, $"delete from ChatMembers where ChatId='{idChat}'");
+                    logger.Debug($"Чат с id {idChat} удален, за неимением там нет юзеров");
+                }
+                else if ((int)Helper.ExecuteScalar(_connectionString, $"select count(*) from ChatMembers where ChatId='{idChat}'") > members.Count())
+                {
+                    foreach (var x in members)
+                    {
+                        Helper.ExecuteQuery(_connectionString, $"delete from ChatMembers where ChatId='{idChat}' and UserId='{x}'");
+                    }
+
+                    logger.Debug($"Пользователи удалены из чата с id {idChat} ");
+                }
+                else
+                {
+                    logger.Error($"Список пользователей, которых нужно удалить, превышает список пользователей в чате {idChat}");
+                    throw new ArgumentException($"Список пользователей, которых нужно удалить, превышает список пользователей в чате {idChat}");
+                }
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex, $"Ошибка при попытке удаления списка пользователей из чата с id {idChat}");
-                throw ex;
+                logger.Error(ex, $"Ошибка при попытке удаления списка пользователей из чата с id {idChat} пользователем с id {idUser}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -159,116 +163,86 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка получения данных о чате с id {idChat} ");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select Name,Id from Chats where Id='{idChat}'");
+                if (userData.Rows.Count == 0)
                 {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select Name,Id from Chats where Id='{idChat}'";
-
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error($"Чат с id {idChat} не найден");
-                                throw new ArgumentException($"Чат с id {idChat} не найден");
-                            }
-                              Chat chat=new Chat
-                            {
-                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                                Name = reader.GetString(reader.GetOrdinal("Name"))
-                            };
-                            logger.Debug($"Получены данные о чате с id {idChat} ");
-                            return chat;
-                        }
-                    }
+                    logger.Error($"Чат с id {idChat} не найден");
+                    throw new ArgumentException($"Чат с id {idChat} не найден");
                 }
+
+                Chat chat = new Chat
+                {
+                    Id = (Guid)userData.Rows[0]["Id"],
+                    Name = (string)userData.Rows[0]["Name"]
+                };
+                logger.Debug($"Получены данные о чате с id {idChat} ");
+                return chat;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex,$"Ошибка при получении данных о чате с id {idChat} ");
-                throw ex;
+                logger.Error(ex, $"Ошибка при получении данных о чате с id {idChat} ");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
+
         public IEnumerable<User> GetChatMembers(Guid idChat)
         {
             logger.Debug($"Попытка получения списка пользователей чата с id {idChat} ");
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+                List<User> users = new List<User>();
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select UserId from chatMembers where ChatId='{idChat}'");
+                foreach (DataRow item in userData.Rows)
                 {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        List<User> users = new List<User>();
-                        command.CommandText = $"select UserId from chatMembers where ChatId='{idChat}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            while (reader.Read())
-                            {
-                                users.Add(_usersRepository.Get(reader.GetGuid(reader.GetOrdinal("UserId"))));
-                            }
-                               
-                        }
-                        
-                        logger.Debug($"Получен список пользователей чата с id {idChat} ");
-                        return users;
-                    }
+                    users.Add(_usersRepository.Get((Guid)item["UserId"]));
                 }
+                logger.Debug($"Получен список пользователей чата с id {idChat} ");
+                return users;
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"Ошибка при получении данных о пользователях чата с id {idChat} ");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
+
         public IEnumerable<Chat> GetUserChats(Guid idUser)
         {
             logger.Debug($"Попытка получения списка чатов у пользователя с id {idUser} ");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
-                {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select ChatMembers.ChatId,Chats.Name from " +
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select ChatMembers.ChatId,Chats.Name from " +
                             $"ChatMembers " +
-                            $" inner join Chats on ChatMembers.ChatId=Chats.Id where ChatMembers.UserId='{idUser}'";
-                        List<Chat> chats = new List<Chat>();
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error($"Пользователь с id {idUser} не состоит ни в одном чате");
-                                throw new ArgumentException($"Пользователь с id {idUser} не состоит ни в одном чате");
-                            }
-                            while(reader.Read())
-                            {
-                                Chat chat = new Chat
-                                {
-                                    Id = reader.GetGuid(reader.GetOrdinal("ChatId")),
-                                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                                    Members = GetChatMembers(reader.GetGuid(reader.GetOrdinal("ChatId")))
-                                };
-                                chats.Add(chat);
-                            }
-                            logger.Debug($"Получен список чатов у пользователя с id {idUser} ");
-                            return chats;
-
-                        }
-                        
-                    }
+                            $" inner join Chats on ChatMembers.ChatId=Chats.Id where ChatMembers.UserId='{idUser}'");
+                if (userData.Rows.Count == 0)
+                {
+                    logger.Error($"Пользователь с id {idUser} не состоит ни в одном чате");
+                    throw new ArgumentException($"Пользователь с id {idUser} не состоит ни в одном чате");
                 }
+                List<Chat> chats = new List<Chat>();
+                foreach (DataRow item in userData.Rows)
+                {
+                    Chat chat = new Chat
+                    {
+                        Id = (Guid)item["ChatId"],
+                        Name = (string)item["Name"],
+                        Members = GetChatMembers((Guid)item["ChatId"])
+                    };
+                    chats.Add(chat);
+                }
+                logger.Debug($"Получен список чатов у пользователя с id {idUser} ");
+                return chats;
+
             }
             catch (Exception ex)
             {
                 logger.Error(ex, $"Ошибка при получении списка чатов у пользователя с id {idUser}  ");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
 
-        }        
+        }
+
+       
     }
 }

@@ -15,8 +15,9 @@ namespace Mes.DataLayer
         User Login(string name,string password);
         User Get(Guid id);
         void Delete(Guid id);
-        void ChangeAvatar(Guid id,Image file);
+        void ChangeAvatar(Guid id,byte[]avatar);
         void ChangeName(Guid id,string name);
         void ChangePassword(Guid id,string pass);
+        IEnumerable<User> SearchUsers(Guid idUser, string name);
     }
 }

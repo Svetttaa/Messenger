@@ -40,5 +40,16 @@ namespace Mes.Client.Properties {
                 return ((global::System.Drawing.Color)(this["ButtonsColor"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        public global::Mes.Model.User CurrentUser {
+            get {
+                return ((global::Mes.Model.User)(this["CurrentUser"]));
+            }
+            set {
+                this["CurrentUser"] = value;
+            }
+        }
     }
 }

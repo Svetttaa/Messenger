@@ -13,8 +13,8 @@ namespace Mes.DataLayer
         IEnumerable<User> GetChatMembers(Guid idChat);
         IEnumerable<Chat> GetUserChats(Guid idUser);
         void Delete(Guid idChat,Guid idUser);
-        void AddMembers(IEnumerable<Guid> members, Guid idChat);
-        void DeleteMembers(IEnumerable<Guid> members, Guid idChat);
+        void AddMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser);
+        void DeleteMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser);
         Chat GetChat(Guid idChat);
     }
 }

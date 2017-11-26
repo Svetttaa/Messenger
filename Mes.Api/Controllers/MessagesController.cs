@@ -26,7 +26,7 @@ namespace Mes.Api.Controllers
         [HttpGet, Route("api/messages/getAmount/{chatId}/{skip}/{amount}")]
         public object GetAmount(Guid chatId,int skip,int amount)
         {
-            return messagesRepository.GetAmount(chatId,skip,amount);
+            return messagesRepository.GetAmountOfMessages(chatId,skip,amount);
         }
     }
 }

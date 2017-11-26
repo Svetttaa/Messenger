@@ -8,5 +8,8 @@
     <Setting Name="ButtonsColor" Type="System.Drawing.Color" Scope="Application">
       <Value Profile="(Default)">White</Value>
     </Setting>
+    <Setting Name="CurrentUser" Type="Mes.Model.User" Scope="User">
+      <Value Profile="(Default)" />
+    </Setting>
   </Settings>
 </SettingsFile>

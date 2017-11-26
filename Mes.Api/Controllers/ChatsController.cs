@@ -46,16 +46,16 @@ namespace Mes.Api.Controllers
             return chatsRepository.GetUserChats(id);
         }
 
-        [HttpPost, Route("api/chats/addMembers")]
-        public void AddMembers([FromBody]Chat chat)
+        [HttpPost, Route("api/chats/addMembers/{idUser}")]
+        public void AddMembers(Guid idUser,[FromBody]Chat chat)
         {
-            chatsRepository.AddMembers(chat.Members.Select(u => u.Id).ToArray(), chat.Id);
+            chatsRepository.AddMembers(chat.Members.Select(u => u.Id).ToArray(), chat.Id,idUser);
         }
 
-        [HttpPost, Route("api/chats/deleteMembers")]
-        public void DeleteMembers([FromBody]Chat chat)
+        [HttpPost, Route("api/chats/deleteMembers/{idUser}")]
+        public void DeleteMembers(Guid idUser,[FromBody]Chat chat)
         {
-            chatsRepository.DeleteMembers(chat.Members.Select(u => u.Id).ToArray(), chat.Id);
+            chatsRepository.DeleteMembers(chat.Members.Select(u => u.Id).ToArray(), chat.Id,idUser);
         }
     }
 }

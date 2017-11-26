@@ -9,75 +9,88 @@ using System.Drawing;
 using Mes.DataLayer;
 using Mes.Model;
 using NLog;
+using System.Data;
+using System.Web;
+using System.Web.Http;
+using System.Net;
+using System.Net.Http;
 
 namespace Mes.DataLayer.Sql
 {
     public class UsersRepository : IUsersRepository
     {
-        Logger logger = LogManager.GetCurrentClassLogger(); 
+        Logger logger = LogManager.GetCurrentClassLogger();
 
         private readonly string _connectionString;
         public UsersRepository(string connectionString)
         {
             _connectionString = connectionString;
         }
-        public User  Login(string name,string password)
+
+        public User Login(string name, string password)
         {
-            logger.Debug($"Попытка входа,имя: { name}, пароль: { password}"); 
+            logger.Debug($"Попытка входа,имя: {name}, пароль: {password}");
             try
             {
-                using (SqlConnection connection = new SqlConnection(_connectionString))
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Users where Name=N'{name}' and Password=N'{password}'");
+                if (userData.Rows.Count == 0)
                 {
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select Name,Password,Id,Disabled from Users where Name=N'{name}' and Password=N'{password}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows && reader.Read())
-                            {
-                                User user = new User
-                                {
-                                    Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                                    Disabled = reader.GetBoolean(reader.GetOrdinal("Disabled")),
-                                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                                    Password = reader.GetString(reader.GetOrdinal("Password"))
-                                };
-                                logger.Debug($"Пользователь с id {user.Id} вошел в систему");
-                                return user;
-                               
-                            }
-                            else
-                            {
-                                logger.Error($"Неверное имя {name} или пароль {password}");
-                                throw new ArgumentException("Неверное имя или пароль");
-                            }
-                        }
-                    }
+                    logger.Error($"Неверное имя {name} или пароль {password}");
+                    throw new ArgumentException("Неверное имя или пароль");
                 }
+                User user = new User
+                {
+                    Id = (Guid)userData.Rows[0]["Id"],
+                    Disabled = (bool)userData.Rows[0]["Disabled"],
+                    Name = (string)userData.Rows[0]["Name"],
+                    Password = (string)userData.Rows[0]["Password"]
+                };
+
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (user.Id).ToString() + ".png");
+                if (File.Exists(path))
+                {
+                    Bitmap b = (Bitmap)Bitmap.FromFile(path);
+
+                    ImageConverter imageConverter = new ImageConverter();
+                    user.Ava = (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+                }
+
+                logger.Debug($"Пользователь с id {user.Id} вошел в систему");
+                return user;
             }
-            catch(Exception ex)
-            { 
-                logger.Error(ex,$"при попытке входа возникла ошибка при аргументах имя: {name}, пароль:{password}");
-                throw ex;
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"при попытке входа возникла ошибка при аргументах имя: {name}, пароль:{password}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
-            
+
         }
-        public void ChangeAvatar(Guid id, Image file)
+
+        public void ChangeAvatar(Guid id, byte[] avatar)
         {
             logger.Debug($"Попытка изменения аватара, id пользователя: {id}");
             try
             {
-                string path = @"D://Avatars//" + id.ToString();
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Users where Id='{id}'");
+                if (userData.Rows.Count == 0)
+                {
+                    logger.Error($"Пользователя с id {id} нет в базе данных");
+                    throw new ArgumentException($"Пользователь с id {id} не найден");
+                }
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (id).ToString() + ".png");
                 if (File.Exists(path))
                     File.Delete(path);
-                file.Save(path, System.Drawing.Imaging.ImageFormat.Png);
+                if (avatar != null && avatar.Any())
+                {
+                    Image avatarImage = (Bitmap)((new ImageConverter()).ConvertFrom(avatar));
+                    avatarImage.Save(path);
+                }
                 logger.Debug($"Пользователь с id {id} успешно загрузил фото");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex,$"При попытке изменения аватара возникла ошибка при аргументах id пользователя {id}");
-                throw ex;
+                logger.Error(ex, $"При попытке изменения аватара возникла ошибка при аргументах id пользователя {id}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -86,31 +99,18 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка изменения Имя у пользователя с id {id} на имя {name}");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
+                var userData = (int)Helper.ExecuteQuery(_connectionString, $"update Users set Name=N'{name}' where Id='{id}'");
+                if (userData == 0)
                 {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select Password from Users where Id='{id}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error( $"Пользователя с id {id} нет в базе данных");
-                                throw new ArgumentException($"Пользователь с id {id} не найден");
-                            }
-                        }
-                        command.CommandText = $"update Users set Name=N'{name}' where Id='{id}'";
-                        command.ExecuteNonQuery();
-                        logger.Debug($"у пользователя с id {id} было изменено имя на {name}");
-                    }
+                    logger.Error($"Пользователя с id {id} нет в базе данных");
+                    throw new ArgumentException($"Пользователь с id {id} не найден");
                 }
+                logger.Debug($"у пользователя с id {id} было изменено имя на {name}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"При попытке изменения имени возникла ошибка при аргументах id пользователя {id}");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -119,32 +119,18 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка изменения пароля у пользователя с id {id}");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
+                var userData = (int)Helper.ExecuteQuery(_connectionString, $"update Users set Password=N'{pass}' where Id='{id}'");
+                if (userData == 0)
                 {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select Password from Users where Id='{id}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error($"Пользователя с id {id} нет в базе данных");
-                                throw new ArgumentException($"Пользователь с id {id} не найден");
-                            }
-                        }
-                        command.CommandText = $"update Users set Password=N'{pass}' where Id='{id}'";
-                        command.ExecuteNonQuery();
-                        logger.Debug($"у пользователя с id {id} был изменен пароль на {pass}");
-
-                    }
+                    logger.Error($"Пользователя с id {id} нет в базе данных");
+                    throw new ArgumentException($"Пользователь с id {id} не найден");
                 }
+                logger.Debug($"у пользователя с id {id} был изменен пароль на {pass}");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex,$"При попытке изменения пароля возникла ошибка при аргументах id пользователя {id}");
-                throw ex;
+                logger.Error(ex, $"При попытке изменения пароля возникла ошибка при аргументах id пользователя {id}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -153,44 +139,28 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка создания пользователя с параметратми Имя {user.Name} Пароль {user.Password}");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
+                if ((int)Helper.ExecuteScalar(_connectionString, $"select count(*) from Users where Name=N'{user.Name}'") > 0)
                 {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select * from Users where Name=N'{user.Name}'";
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (reader.HasRows)
-                            {
-                                reader.Close();
-                                logger.Error($"Пользователь с именем {user.Name} уже существует");
-                                throw new ArgumentException($"Пользователь с именем {user.Name} уже существует");
-                            }
-                            else
-                            {
-                                reader.Close();
-                                user.Id = Guid.NewGuid();
-                                command.CommandText = $"insert into Users (Id, Name, Password) values " +
-                                    $"(@id,@name, @password)";
-                                command.Parameters.AddWithValue("@id", user.Id);
-                                command.Parameters.AddWithValue("@name", user.Name);
-                                command.Parameters.AddWithValue("@password", user.Password);
-                                command.ExecuteNonQuery();
-                                user.Disabled = false;
-                                logger.Debug($"Создан ользователь с параметрами id {user.Id}, имя {user.Name}, пароль {user.Password} ");
-                                return user;
-                            }
-
-                        }
-                    }
+                    logger.Error($"Пользователь с именем {user.Name} уже существует");
+                    throw new ArgumentException($"Пользователь с именем {user.Name} уже существует");
                 }
+                user.Id = Guid.NewGuid();
+                Helper.ExecuteQuery(_connectionString, $"insert into Users (Id, Name, Password) values ('{user.Id}','{user.Name}', '{user.Password}')");
+
+                if (user.Ava != null && user.Ava.Any())
+                {
+                    Image avatar = (Bitmap)((new ImageConverter()).ConvertFrom(user.Ava));
+                    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", user.Id.ToString() + ".png");
+                    avatar.Save(path);
+                }
+
+                logger.Debug($"Создан ользователь с параметрами id {user.Id}, имя {user.Name}, пароль {user.Password} ");
+                return user;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"При попытке создания пользователя возникла ошибка при аргументах имя {user.Name}, пароль {user.Password} ");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -199,22 +169,18 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка удаления пользователя с id {id}");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
+                var userData = (int)Helper.ExecuteQuery(_connectionString, $"update Users set Disabled='1' where Id='{id}'");
+                if (userData == 0)
                 {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"update Users set Disabled='1' where Id='{id}'";
-                        command.ExecuteNonQuery();
-                        logger.Debug($"пользователь с id {id} удален (т.е. изменился статус его видимости Disabled с false на true)");
-                    }
+                    logger.Error($"Пользователя с id {id} нет в базе данных");
+                    throw new ArgumentException($"Пользователь с id {id} не найден");
                 }
+                logger.Debug($"пользователь с id {id} удален (т.е. изменился статус его видимости Disabled с false на true)");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
-                logger.Error(ex,$"При попытке удаления пользователся с id {id} возникла ошибка");
-                throw ex;
+                logger.Error(ex, $"При попытке удаления пользователся с id {id} возникла ошибка");
+               throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
@@ -223,40 +189,69 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка получения данных пользователя с id {id}");
             try
             {
-                using (SqlConnection connection = new SqlConnection())
-                {
-                    connection.ConnectionString = _connectionString;
-                    connection.Open();
-                    using (var command = connection.CreateCommand())
-                    {
-                        command.CommandText = $"select Name,Password,Id,Disabled from Users where Id='{id}'";
-                        command.ExecuteNonQuery();
-                        using (var reader = command.ExecuteReader())
-                        {
-                            if (!reader.Read())
-                            {
-                                logger.Error($"Пользователь с id {id} не найден");
-                                throw new ArgumentException($"Пользователь с id {id} не найден");
-                            }
 
-                            User user = new User
-                            {
-                                Id = reader.GetGuid(reader.GetOrdinal("Id")),
-                                Disabled = reader.GetBoolean(reader.GetOrdinal("Disabled")),
-                                Name = reader.GetString(reader.GetOrdinal("Name")),
-                                Password = reader.GetString(reader.GetOrdinal("Password"))
-                            };
-                            logger.Debug($"У Пользователя с id {id} получены данные");
-                            return user;
-                        }
-                    }
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Users where Id='{id}'");
+                if (userData.Rows.Count == 0)
+                {
+                    logger.Error($"Пользователя с id {id} нет в базе данных");
+                    throw new ArgumentException($"Пользователь с id {id} не найден");
                 }
+                User user = new User
+                {
+                    Id = (Guid)userData.Rows[0]["Id"],
+                    Disabled = (bool)userData.Rows[0]["Disabled"],
+                    Name = (string)userData.Rows[0]["Name"],
+                    Password = (string)userData.Rows[0]["Password"]
+                };
+                string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (user.Id).ToString() + ".png");
+                if (File.Exists(path))
+                {
+                    Bitmap b = (Bitmap)Bitmap.FromFile(path);
+                    ImageConverter imageConverter = new ImageConverter();
+                    user.Ava = (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+                }
+                logger.Debug($"У Пользователя с id {id} получены данные");
+                return user;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 logger.Error(ex, $"Ошибка при получении данных о пользователе с id {id}");
-                throw ex;
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
+
+        public IEnumerable<User> SearchUsers(Guid idUser, string name)
+        {
+
+            logger.Debug($"Попытка поиска пользователя с именем {name}");
+            try
+            {
+                List<User> users = new List<User>();
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Users where Name like '%{name}%'");
+                if (userData.Rows.Count == 0)
+                {
+                    logger.Error($"Пользователь с именем {name} не найден");
+                    throw new ArgumentException($"Пользователь с именем {name} не найден");
+                }
+                foreach (DataRow item in userData.Rows)
+                {
+                    User user = new User()
+                    {
+                        Name = (string)item["Name"],
+                        Id = (Guid)item["Id"]
+                    };
+                    users.Add(user);
+                }
+                logger.Debug($"Получен список пользователей чата с  с именем {name} ");
+                return users;
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Ошибка при попытке поиска пользователей с именем {name}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
+            }
+
+        }
+
     }
 }

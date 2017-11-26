@@ -66,6 +66,7 @@
             this.startControl.Name = "startControl";
             this.startControl.Size = new System.Drawing.Size(333, 269);
             this.startControl.TabIndex = 0;
+
             // 
             // StartForm
             // 

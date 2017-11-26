@@ -12,7 +12,7 @@ namespace Mes.Client
 {
     public partial class StartForm : Form
     {
-        Control ActiveControl;
+        Control CurrentControl;
 
         public StartForm()
         {
@@ -32,7 +32,7 @@ namespace Mes.Client
             };
             this.Controls.Add(loginControl);
             backToStart.Visible = true;
-            ActiveControl = loginControl;
+            CurrentControl = loginControl;
         }
 
         public void ShowRegisterControl()
@@ -44,14 +44,16 @@ namespace Mes.Client
             };
             this.Controls.Add(registerControl);
             backToStart.Visible = true;
-            ActiveControl = registerControl;
+            CurrentControl = registerControl;
         }
 
         private void backToStart_Click(object sender, EventArgs e)
         {
-            ActiveControl.Hide();
+            CurrentControl.Hide();
             startControl.Show();
             backToStart.Visible = false;
         }
+
+
     }
 }

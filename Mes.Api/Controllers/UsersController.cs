@@ -51,5 +51,17 @@ namespace Mes.Api.Controllers
             return usersRepository.Login(user.Name, user.Password);
         }
 
+        [HttpPost, Route("api/users/avatar")]
+        public void Ava([FromBody] User user)
+        { 
+            usersRepository.ChangeAvatar(user.Id,user.Ava);
+        }
+
+        [HttpGet, Route("api/users/searchUsers/{id}/{name}")]
+        public IEnumerable<User> SearchUsers(Guid id, string name)
+        {
+            return usersRepository.SearchUsers(id,name);
+        }
+
     }
 }

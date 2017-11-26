@@ -12,6 +12,6 @@ namespace Mes.DataLayer
         void Delete(Guid messageId);
         Message Send(Guid userId, Guid chatId, string text, string attach);
         Message Change(Guid messageId);
-        IEnumerable<Message> GetAmount(Guid chatId,int skip,int amount);
+        IEnumerable<Message> GetAmountOfMessages(Guid chatId,int skip,int amount);
     }
 }

@@ -35,7 +35,6 @@
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
             this.btnAva = new System.Windows.Forms.Button();
-            this.lblAva = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.txtPasswordAgain = new System.Windows.Forms.TextBox();
             this.SuspendLayout();
@@ -51,6 +50,7 @@
             this.btnRegister.TabIndex = 5;
             this.btnRegister.Text = "Регистрация";
             this.btnRegister.UseVisualStyleBackColor = false;
+            this.btnRegister.Click += new System.EventHandler(this.btnRegister_Click);
             // 
             // label2
             // 
@@ -86,7 +86,7 @@
             this.txtPassword.Location = new System.Drawing.Point(77, 84);
             this.txtPassword.Name = "txtPassword";
             this.txtPassword.PasswordChar = '*';
-            this.txtPassword.Size = new System.Drawing.Size(182, 33);
+            this.txtPassword.Size = new System.Drawing.Size(181, 33);
             this.txtPassword.TabIndex = 9;
             // 
             // openFileDialog
@@ -96,23 +96,14 @@
             // btnAva
             // 
             this.btnAva.BackColor = System.Drawing.Color.White;
-            this.btnAva.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.btnAva.Location = new System.Drawing.Point(77, 186);
+            this.btnAva.Font = new System.Drawing.Font("Segoe UI", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.btnAva.Location = new System.Drawing.Point(103, 190);
             this.btnAva.Name = "btnAva";
-            this.btnAva.Size = new System.Drawing.Size(128, 24);
+            this.btnAva.Size = new System.Drawing.Size(129, 34);
             this.btnAva.TabIndex = 13;
             this.btnAva.Text = "Загрузить фото";
             this.btnAva.UseVisualStyleBackColor = false;
-            // 
-            // lblAva
-            // 
-            this.lblAva.AutoSize = true;
-            this.lblAva.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lblAva.Location = new System.Drawing.Point(216, 190);
-            this.lblAva.Name = "lblAva";
-            this.lblAva.Size = new System.Drawing.Size(42, 17);
-            this.lblAva.TabIndex = 14;
-            this.lblAva.Text = "Photo";
+            this.btnAva.Click += new System.EventHandler(this.btnAva_Click);
             // 
             // label3
             // 
@@ -126,11 +117,11 @@
             // 
             // txtPasswordAgain
             // 
-            this.txtPasswordAgain.Font = new System.Drawing.Font("Segoe UI", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.txtPasswordAgain.Font = new System.Drawing.Font("Segoe UI", 14.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.txtPasswordAgain.Location = new System.Drawing.Point(77, 144);
             this.txtPasswordAgain.Name = "txtPasswordAgain";
             this.txtPasswordAgain.PasswordChar = '*';
-            this.txtPasswordAgain.Size = new System.Drawing.Size(181, 29);
+            this.txtPasswordAgain.Size = new System.Drawing.Size(181, 33);
             this.txtPasswordAgain.TabIndex = 16;
             // 
             // RegisterControl
@@ -139,7 +130,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.txtPasswordAgain);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.lblAva);
             this.Controls.Add(this.btnAva);
             this.Controls.Add(this.label2);
             this.Controls.Add(this.label1);
@@ -162,7 +152,6 @@
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
         private System.Windows.Forms.Button btnAva;
-        private System.Windows.Forms.Label lblAva;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.TextBox txtPasswordAgain;
     }

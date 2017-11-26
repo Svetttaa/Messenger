@@ -13,24 +13,14 @@ namespace Mes.Datalayer.Sql.Tests
     {
         private readonly static string _connectionString = @"Server=localhost\SQLExpress;Initial Catalog=DBMes;
         Trusted_Connection=True;";
-        // private readonly List<Guid> _tempUsers = new List<Guid>();
-        // private readonly List<User> _tempUsers1 = new List<User>();
+
         [TestMethod]
         public void ShouldSend()
         {
-            var user1 = new User
-            {
-                Name = Guid.NewGuid().ToString(),
-                Password = "password"
-            };
-            var user2 = new User
-            {
-                Name = Guid.NewGuid().ToString(),
-                Password = "password"
-            };
+            User user1 = Helper.CreateUser(_connectionString, Helper.NewUser());
+            User user2 = Helper.CreateUser(_connectionString, Helper.NewUser());
+
             UsersRepository userRepository = new UsersRepository(_connectionString);
-            user1 = userRepository.Create(user1);
-            user2 = userRepository.Create(user2);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
             var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "HellowChat");
@@ -50,19 +40,10 @@ namespace Mes.Datalayer.Sql.Tests
         [TestMethod]
         public void SholdGetAmount()
         {
-            var user1 = new User
-            {
-                Name = Guid.NewGuid().ToString(),
-                Password = "password"
-            };
-            var user2 = new User
-            {
-                Name = Guid.NewGuid().ToString(),
-                Password = "password"
-            };
+            User user1 = Helper.CreateUser(_connectionString, Helper.NewUser());
+            User user2 = Helper.CreateUser(_connectionString, Helper.NewUser());
+
             UsersRepository userRepository = new UsersRepository(_connectionString);
-            user1 = userRepository.Create(user1);
-            user2 = userRepository.Create(user2);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
             var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
@@ -89,7 +70,7 @@ namespace Mes.Datalayer.Sql.Tests
             message1 = messagesRepository.Send(message1.UserId, message1.ChatId, message1.Text, null);
             message2 = messagesRepository.Send(message2.UserId, message2.ChatId, message2.Text, null);
             message3 = messagesRepository.Send(message3.UserId, message3.ChatId, message3.Text, null);
-            var result=messagesRepository.GetAmount(resultCreate.Id,1,1);
+            var result=messagesRepository.GetAmountOfMessages(resultCreate.Id,1,1);
             Assert.AreEqual(1, result.Count());
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Mes.Client;
 
 namespace Mes.Client
 {
@@ -16,7 +17,12 @@ namespace Mes.Client
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new StartForm());
+            Client.Initialize();
+
+            StartForm a= new StartForm();
+            a.Show();
+
+            Application.Run();
         }
     }
 }
