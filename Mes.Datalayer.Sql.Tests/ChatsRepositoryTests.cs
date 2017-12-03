@@ -1,12 +1,9 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using System.Web.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Mes.Model;
-using Mes.DataLayer.Sql;
-using System.Linq;
-using Mes.DataLayer;
-using System.Collections.Generic;
-using Mes.Datalayer.Sql.Tests;
-
 
 namespace Mes.DataLayer.Sql.Tests
 {
@@ -40,7 +37,7 @@ namespace Mes.DataLayer.Sql.Tests
             Assert.AreEqual(_tempUsers1.OrderBy(u => u.Id).Last().Id, result.Members.OrderBy(u => u.Id).Last().Id);
         }
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+        [ExpectedException(typeof(HttpResponseException))]
         public void ShouldDeleteChat()
         {
             _tempUsers.Clear();

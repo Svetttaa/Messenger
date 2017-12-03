@@ -95,5 +95,18 @@ namespace Mes.DataLayer.Sql
 
             return new HttpResponseException(ex);
         }
+
+        public static byte[] FromFileToByte(string path)
+        {
+            Bitmap b = (Bitmap)Bitmap.FromFile(path);
+            ImageConverter imageConverter = new ImageConverter();
+            return (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+        }
+
+        public static void FromByteToBitmap(byte[] avatar, string path)
+        {
+            Bitmap avatarImage = (Bitmap)((new ImageConverter()).ConvertFrom(avatar));
+            avatarImage.Save(path);
+        }
     }
 }

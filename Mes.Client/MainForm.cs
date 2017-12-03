@@ -21,9 +21,11 @@ namespace Mes.Client
             InitializeComponent();
 
             lblName.Text = Properties.Settings.Default.CurrentUser.Name;
-            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (Properties.Settings.Default.CurrentUser.Id).ToString() + ".png");
-            if (File.Exists(path))
-                picBoxAva.BackgroundImage = (Bitmap)((new ImageConverter()).ConvertFrom(Properties.Settings.Default.CurrentUser.Ava));
+
+            var avatar = Properties.Settings.Default.CurrentUser.Ava;
+
+            if (avatar != null && avatar.Any())
+                picBoxAva.BackgroundImage = Client.FromBytesToBitmap(avatar);
             Chats = (List<Chat>)Client.GetUserChats(Properties.Settings.Default.CurrentUser.Id);
             if (Chats.Any())
             {
@@ -33,7 +35,8 @@ namespace Mes.Client
                 {
                     var label = Client.CreateLabel(chat.Name, LabelSizeY, ChatsTable.Width, label_Click);
                     label.Name = chat.Id.ToString();
-
+                    label.Margin = new Padding(0, 15, 0, 5);
+                    label.ContextMenuStrip = contextMenuStrip1;
                     ChatsTable.RowCount++;
                     ChatsTable.RowStyles.Add(new RowStyle(SizeType.Absolute, LabelSizeY));
                     ChatsTable.Controls.Add(label, 1, ChatsTable.RowCount - 1);
@@ -42,16 +45,16 @@ namespace Mes.Client
                     {
                         BackgroundImage = Properties.Resources.chat,
                         BackgroundImageLayout = ImageLayout.Zoom,
-                        Size = new Size(LabelSizeY, LabelSizeY)
-    
+                        Size = new Size(LabelSizeY, LabelSizeY),
+                        Name = chat.Id.ToString()
                     };
 
                     if (chat.Members.Count() == 2)
                     {
-                        byte[] avatar = chat.Members.First(x => x.Id != Properties.Settings.Default.CurrentUser.Id).Ava;
+                        byte[] chatAvatar = chat.Members.First(x => x.Id != Properties.Settings.Default.CurrentUser.Id).Ava;
 
-                        if (avatar != null && avatar.Any())
-                            avatarPB.BackgroundImage = Client.FromBytesToBitmap(avatar);
+                        if (chatAvatar != null && chatAvatar.Any())
+                            avatarPB.BackgroundImage = Client.FromBytesToBitmap(chatAvatar);
                     }
                     ChatsTable.Controls.Add(avatarPB, 0, ChatsTable.RowCount - 1);
 
@@ -87,7 +90,74 @@ namespace Mes.Client
 
         private void label_Click(object sender, EventArgs e)
         {
-            
+            Guid chatId = Guid.Parse(((Label)sender).Name);
+            Close();
+            Chat chat = (Chat)Client.GetChat(chatId);
+            chat.Members = (List<User>)Client.GetChatMembers(chat.Id);
+            ChatForm CF = new ChatForm(chat);
+            CF.Show();
+
+        }
+
+
+
+        private void удалитьЧатToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            //Guid chatId = Guid.Parse(((Label)sender).Name);
+            //Client.DeleteChat(chatId, Properties.Settings.Default.CurrentUser.Id);
+            //((Label)sender).Height = 0;
+            ToolStripItem menuItem = sender as ToolStripItem;
+            if (menuItem != null)
+            {
+                // Retrieve the ContextMenuStrip that owns this ToolStripItem
+                ContextMenuStrip owner = menuItem.Owner as ContextMenuStrip;
+                if (owner != null)
+                {
+                    // Get the control that is displaying this context menu
+                    Control sourceControl = owner.SourceControl;
+                    Guid chatId = Guid.Parse(sourceControl.Name);
+                    int rowIndex = ChatsTable.GetRow(sourceControl);
+                    Client.DeleteChat(chatId, Properties.Settings.Default.CurrentUser.Id);
+                    RemoveRow(ChatsTable, rowIndex);
+                    //foreach (var c in ChatsTable.Controls.Find(chatId.ToString(), true))
+                    //    c.Height = 0;
+                    
+                    //ChatsTable.SetRow(new Label() { Height = 0, AutoSize = false }, rowIndex);
+
+                }
+            }
+        }
+
+        private void RemoveRow(TableLayoutPanel panel, int index)
+        {
+            if (index >= panel.RowCount)
+            {
+                return;
+            }
+
+            // delete all controls of row that we want to delete
+            for (int i = 0; i < panel.ColumnCount; i++)
+            {
+                var control = panel.GetControlFromPosition(i, index);
+                panel.Controls.Remove(control);
+            }
+
+            // move up row controls that comes after row we want to remove
+            for (int i = index + 1; i < panel.RowCount; i++)
+            {
+                for (int j = 0; j < panel.ColumnCount; j++)
+                {
+                    var control = panel.GetControlFromPosition(j, i);
+                    if (control != null)
+                    {
+                        panel.SetRow(control, i - 1);
+                    }
+                }
+            }
+
+            // remove last row
+            //panel.RowStyles.RemoveAt(panel.RowCount - 1);
+            //panel.RowCount--;
         }
     }
 }

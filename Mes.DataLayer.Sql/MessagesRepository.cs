@@ -39,7 +39,7 @@ namespace Mes.DataLayer.Sql
             try
             {
                 List<Message> messages = new List<Message>();
-                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Messages where ChatId='{chatId}' order by Date " +
+                var userData = (DataTable)Helper.ExecuteQuery(_connectionString, $"select * from Messages where ChatId='{chatId}' order by Date desc " +
                             $"offset {skip} rows" +
                             $" fetch next {amount} rows only");
 
@@ -70,7 +70,6 @@ namespace Mes.DataLayer.Sql
             logger.Debug($"Попытка отправки сообщения от пользователя {userId} в чате {chatId} с текстом {text} и файлом {attach}");
             try
             {
-                //var userData = (DataTable)SqlHelper.ExecuteQuery(_connectionString, $"select * from ChatMembers where ChatId='{chatId}'and UserId='{userId}'");
                 if ((int)Helper.ExecuteScalar(_connectionString, $"select count(*) from ChatMembers where ChatId='{chatId}'and UserId='{userId}'") == 0)
                 {
                     logger.Error($"Пользователя с id {userId} нет в данном чате");

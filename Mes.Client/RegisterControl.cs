@@ -55,7 +55,7 @@ namespace Mes.Client
             };
 
             if (!String.IsNullOrWhiteSpace(AvatarPath))
-                user.Ava = FromFileToBytes(AvatarPath);
+                user.Ava = Client.FromFileToBytes(AvatarPath);
 
             var response = (User)Client.RegisterUser(user);
 
@@ -76,12 +76,6 @@ namespace Mes.Client
             }
         }
 
-        public static byte[] FromFileToBytes(string path)
-        {
-            Bitmap b = (Bitmap)Bitmap.FromFile(path);
-
-            ImageConverter imageConverter = new ImageConverter();
-            return (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
-        }
+        
     }
 }

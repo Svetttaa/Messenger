@@ -45,6 +45,12 @@ namespace Mes.Api.Controllers
              usersRepository.ChangePassword(user.Id, user.Password);
         }
 
+        [HttpPost, Route("api/users/changeAvatar")]
+        public void ChangeAvatar([FromBody] User user)
+        {
+            usersRepository.ChangeAvatar(user.Id, user.Ava);
+        }
+
         [HttpPost, Route("api/users/login")]
         public object Login([FromBody] User user)
         {

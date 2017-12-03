@@ -227,7 +227,8 @@ namespace Mes.Client
 
         public static void DeleteChat(Guid idChat, Guid idUser)
         {
-            var response = _client.GetAsync(@"chats/" + idChat + "/" + idUser).Result;
+            var response = _client.DeleteAsync(@"chats/" + idChat + "/" + idUser).Result;
+
             try
             {
                 response.EnsureSuccessStatusCode();
@@ -263,9 +264,68 @@ namespace Mes.Client
 
             return new List<Chat>();
         }
+
+        public static object GetChatMembers(Guid idChat)
+        {
+            var response = _client.GetAsync(@"chats/getChatMembers/" + idChat).Result.Content;
+            try
+            {
+                return response.ReadAsAsync<List<User>>().Result;
+            }
+            catch (UnsupportedMediaTypeException)
+            {
+                MessageBox.Show(response.ReadAsStringAsync().Result);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+
+            return new List<User>();
+
+        }
         #endregion
 
-        public static Label CreateLabel(string name, int height, int width, EventHandler clickHandler)
+        #region Messages
+        public static object GetAmountOfMessages(Guid chatId,int skip,int amount)
+        {
+            var response = _client.GetAsync(@"messages/getAmount/" + chatId + "/" + skip + "/" + amount).Result.Content;
+            try
+            {
+                return response.ReadAsAsync<List<Model.Message>>().Result;
+            }
+            catch (UnsupportedMediaTypeException)
+            {
+                MessageBox.Show(response.ReadAsStringAsync().Result);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+
+            return new List<Model.Message> ();
+        }
+
+        public static object Send(Model.Message message)
+        {
+            var response = _client.PostAsJsonAsync(@"messages/send", message).Result.Content;
+
+            try
+            {
+                return response.ReadAsAsync<Model.Message>().Result;
+            }
+            catch (UnsupportedMediaTypeException)
+            {
+                MessageBox.Show(response.ReadAsStringAsync().Result);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+            return new Model.Message();
+        }
+        #endregion
+        public static Label CreateLabel(string name, int height, int width, MouseEventHandler clickHandler=null)
         {
             var label =  new Label
             {
@@ -283,7 +343,8 @@ namespace Mes.Client
                 TextAlign = ContentAlignment.MiddleLeft,
                 
             };
-            label.Click += clickHandler;
+            if(clickHandler!=null)
+            label.MouseClick += clickHandler;
 
             return label;
         }
@@ -291,6 +352,23 @@ namespace Mes.Client
         public static Bitmap FromBytesToBitmap(byte[] bytes)
         {
             return (Bitmap)((new ImageConverter()).ConvertFrom(bytes));
+        }
+
+        public static byte[] FromFileToBytes(string path)
+        {
+            Bitmap b = (Bitmap)Bitmap.FromFile(path);
+            ImageConverter imageConverter = new ImageConverter();
+            return (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+        }
+
+        public static PictureBox CreatePictureBox(int width, int hight, string name = "")
+        {
+            return new PictureBox()
+            {
+                BackgroundImageLayout = ImageLayout.Zoom,
+                Size = new Size(width, hight),
+                Name = name
+            };
         }
     }
 

@@ -49,10 +49,7 @@ namespace Mes.DataLayer.Sql
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (user.Id).ToString() + ".png");
                 if (File.Exists(path))
                 {
-                    Bitmap b = (Bitmap)Bitmap.FromFile(path);
-
-                    ImageConverter imageConverter = new ImageConverter();
-                    user.Ava = (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+                    user.Ava = Helper.FromFileToByte(path);
                 }
 
                 logger.Debug($"Пользователь с id {user.Id} вошел в систему");
@@ -82,8 +79,7 @@ namespace Mes.DataLayer.Sql
                     File.Delete(path);
                 if (avatar != null && avatar.Any())
                 {
-                    Image avatarImage = (Bitmap)((new ImageConverter()).ConvertFrom(avatar));
-                    avatarImage.Save(path);
+                    Helper.FromByteToBitmap(avatar, path);
                 }
                 logger.Debug($"Пользователь с id {id} успешно загрузил фото");
             }
@@ -149,9 +145,8 @@ namespace Mes.DataLayer.Sql
 
                 if (user.Ava != null && user.Ava.Any())
                 {
-                    Image avatar = (Bitmap)((new ImageConverter()).ConvertFrom(user.Ava));
                     string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", user.Id.ToString() + ".png");
-                    avatar.Save(path);
+                    Helper.FromByteToBitmap(user.Ava, path);
                 }
 
                 logger.Debug($"Создан ользователь с параметрами id {user.Id}, имя {user.Name}, пароль {user.Password} ");
@@ -206,9 +201,7 @@ namespace Mes.DataLayer.Sql
                 string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Avatars", (user.Id).ToString() + ".png");
                 if (File.Exists(path))
                 {
-                    Bitmap b = (Bitmap)Bitmap.FromFile(path);
-                    ImageConverter imageConverter = new ImageConverter();
-                    user.Ava = (byte[])imageConverter.ConvertTo(b, typeof(byte[]));
+                    user.Ava = Helper.FromFileToByte(path);
                 }
                 logger.Debug($"У Пользователя с id {id} получены данные");
                 return user;

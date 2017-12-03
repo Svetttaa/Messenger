@@ -49,7 +49,7 @@ namespace Mes.DataLayer.Sql
                 throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
-        // TODO: Сделать дополнительный метод
+
         public Chat Create(IEnumerable<Guid> members, string name)
         {
             logger.Debug($"Попытка создания чата с именем {name}");

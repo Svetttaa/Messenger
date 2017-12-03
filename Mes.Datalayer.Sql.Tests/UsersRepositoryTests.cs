@@ -88,10 +88,10 @@ namespace Mes.DataLayer.Sql.Tests
         public void ShouldSearchUser()
         {
             User user1 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
-            repository.ChangeName(user1.Id, "Sasha");
+            repository.ChangeName(user1.Id, "Pasha");
             User user2 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
             List<User> users = new List<User>();
-            users = (List<User>)new UsersRepository(_connectionString).SearchUsers(user2.Id, "Sasha");
+            users = (List<User>)new UsersRepository(_connectionString).SearchUsers(user2.Id, "Pasha");
             Assert.AreEqual(1, users.Count);
 
         }

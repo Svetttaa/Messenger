@@ -67,7 +67,11 @@ namespace Mes.Client
                 }
             }
             if (!String.IsNullOrWhiteSpace(AvatarPath))
+            {
                 user.Ava = FromFileToBytes(AvatarPath);
+                Client.ChangeAvatar(user);
+            }
+                
 
             Properties.Settings.Default.CurrentUser = user;
             Close();

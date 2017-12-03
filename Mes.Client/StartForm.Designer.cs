@@ -38,7 +38,7 @@
             // 
             // pictureBox1
             // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
+            this.pictureBox1.Image = global::Mes.Client.Properties.Resources.whale;
             this.pictureBox1.Location = new System.Drawing.Point(104, 12);
             this.pictureBox1.Name = "pictureBox1";
             this.pictureBox1.Size = new System.Drawing.Size(168, 150);
@@ -50,7 +50,7 @@
             // 
             this.backToStart.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             this.backToStart.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.backToStart.Image = ((System.Drawing.Image)(resources.GetObject("backToStart.Image")));
+            this.backToStart.Image = global::Mes.Client.Properties.Resources.back_left_arrow;
             this.backToStart.Location = new System.Drawing.Point(12, 12);
             this.backToStart.Name = "backToStart";
             this.backToStart.Size = new System.Drawing.Size(29, 29);
@@ -66,7 +66,6 @@
             this.startControl.Name = "startControl";
             this.startControl.Size = new System.Drawing.Size(333, 269);
             this.startControl.TabIndex = 0;
-
             // 
             // StartForm
             // 
