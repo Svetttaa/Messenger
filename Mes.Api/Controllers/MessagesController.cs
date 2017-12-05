@@ -20,13 +20,25 @@ namespace Mes.Api.Controllers
         [HttpPost, Route("api/messages/send")]
         public object Send([FromBody]Message  message)
         {
-            return messagesRepository.Send(message.UserId, message.ChatId, message.Text, message.AttachPath);
+            return messagesRepository.Send(message.UserId, message.ChatId, message.Text, message.AttachFile,message.FileName);
         }
 
         [HttpGet, Route("api/messages/getAmount/{chatId}/{skip}/{amount}")]
         public object GetAmount(Guid chatId,int skip,int amount)
         {
             return messagesRepository.GetAmountOfMessages(chatId,skip,amount);
+        }
+
+        [HttpDelete, Route("api/messages/{idMessage}")]
+        public void DeleteMessage(Guid idMessage)
+        {
+            messagesRepository.Delete(idMessage);
+        }
+
+        [HttpPost, Route("api/messages/search")]
+        public object SearchMessages([FromBody]Message message)
+        {
+            return messagesRepository.SearchMessage(message.Text,message.ChatId);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Mes.Client
 {
     public partial class NameUserControl : UserControl
     {
-        const int LabelSizeY = 50;
+       // const int LabelSizeY = 50;
         public NameUserControl(User user)
         {
             InitializeComponent();

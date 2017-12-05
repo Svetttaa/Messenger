@@ -72,6 +72,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttachFile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="AttachFile.Designer.cs">
+      <DependentUpon>AttachFile.cs</DependentUpon>
+    </Compile>
     <Compile Include="ChatForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -79,6 +85,12 @@
       <DependentUpon>ChatForm.cs</DependentUpon>
     </Compile>
     <Compile Include="Client.cs" />
+    <Compile Include="EditChat.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="EditChat.Designer.cs">
+      <DependentUpon>EditChat.cs</DependentUpon>
+    </Compile>
     <Compile Include="EditUser.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -109,6 +121,12 @@
     <Compile Include="RegisterControl.Designer.cs">
       <DependentUpon>RegisterControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="SearchMessages.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="SearchMessages.Designer.cs">
+      <DependentUpon>SearchMessages.cs</DependentUpon>
+    </Compile>
     <Compile Include="SearchUsersForm.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -129,8 +147,14 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="AttachFile.resx">
+      <DependentUpon>AttachFile.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="ChatForm.resx">
       <DependentUpon>ChatForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="EditChat.resx">
+      <DependentUpon>EditChat.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="EditUser.resx">
       <DependentUpon>EditUser.cs</DependentUpon>
@@ -156,6 +180,9 @@
     </Compile>
     <EmbeddedResource Include="RegisterControl.resx">
       <DependentUpon>RegisterControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="SearchMessages.resx">
+      <DependentUpon>SearchMessages.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="SearchUsersForm.resx">
       <DependentUpon>SearchUsersForm.cs</DependentUpon>
@@ -230,6 +257,12 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\bubble.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\attach.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\search.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

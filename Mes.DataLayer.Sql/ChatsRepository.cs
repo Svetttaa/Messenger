@@ -25,22 +25,18 @@ namespace Mes.DataLayer.Sql
             _usersRepository = usersRepository;
         }
 
-        public void AddMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser)
+        public void AddMembers(IEnumerable<Guid> members, Guid idChat)
         {
-            logger.Debug($"Попытка добавления списка пользователей в чат id {idChat} пользователем с id {idUser}");
+            logger.Debug($"Попытка добавления списка пользователей в чат id {idChat} ");
             try
             {
-                if (Helper.CheckUserInChat(_connectionString, idUser, idChat) == false)
-                {
-                    logger.Error($"Пользователя с id {idUser} нет в данном чате");
-                    throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
-                }
+             
                 foreach (var x in members)
                 {
                     Helper.ExecuteQuery(_connectionString, $"insert into ChatMembers (UserId, ChatId) values ('{x}','{idChat}')");
                 }
 
-                logger.Debug($"Список пользователей добавлен в чат id {idChat} пользователем с id {idUser}");
+                logger.Debug($"Список пользователей добавлен в чат id {idChat}");
 
             }
             catch (Exception ex)
@@ -115,21 +111,17 @@ namespace Mes.DataLayer.Sql
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Ошибка при попытке создания  удаления чата с id {idChat} пользователем с id {idUser}");
+                logger.Error(ex, $"Ошибка при попытке удаления чата с id {idChat} пользователем с id {idUser}");
                 throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
 
-        public void DeleteMembers(IEnumerable<Guid> members, Guid idChat, Guid idUser)
+        public void DeleteMembers(IEnumerable<Guid> members, Guid idChat)
         {
-            logger.Debug($"Попытка удаления списка пользователей из чата с id {idChat} пользователем с id {idUser}");
+            logger.Debug($"Попытка удаления списка пользователей из чата с id {idChat} ");
             try
             {
-                if (Helper.CheckUserInChat(_connectionString, idUser, idChat) == false)
-                {
-                    logger.Error($"Пользователя с id {idUser} нет в данном чате");
-                    throw new ArgumentException($"Пользователя с id {idUser} нет в данном чате");
-                }
+                
                 if ((int)Helper.ExecuteScalar(_connectionString, $"select count(*) from ChatMembers where ChatId='{idChat}'") == members.Count())
                 {
                     Helper.ExecuteQuery(_connectionString, $"delete from ChatMembers where ChatId='{idChat}'");
@@ -153,7 +145,7 @@ namespace Mes.DataLayer.Sql
             }
             catch (Exception ex)
             {
-                logger.Error(ex, $"Ошибка при попытке удаления списка пользователей из чата с id {idChat} пользователем с id {idUser}");
+                logger.Error(ex, $"Ошибка при попытке удаления списка пользователей из чата с id {idChat}");
                 throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
             }
         }
@@ -218,7 +210,7 @@ namespace Mes.DataLayer.Sql
                 if (userData.Rows.Count == 0)
                 {
                     logger.Error($"Пользователь с id {idUser} не состоит ни в одном чате");
-                    throw new ArgumentException($"Пользователь с id {idUser} не состоит ни в одном чате");
+                    //throw new ArgumentException($"Пользователь с id {idUser} не состоит ни в одном чате");
                 }
                 List<Chat> chats = new List<Chat>();
                 foreach (DataRow item in userData.Rows)
@@ -243,6 +235,31 @@ namespace Mes.DataLayer.Sql
 
         }
 
-       
+        public void ChangeNameOfChat(Guid idChat,string newName)
+        {
+            logger.Debug($"Попытка изменения названия чата с id {idChat} на имя {newName}");
+            try
+            {
+                using (SqlConnection connection = new SqlConnection())
+                {
+                    connection.ConnectionString = _connectionString;
+                    connection.Open();
+
+                    var chatData = (int)Helper.ExecuteQuery(_connectionString, $"update Chats set Name=N'{newName}' where Id='{idChat}'");
+                    if (chatData == 0)
+                    {
+                        logger.Error($"Чата с id {idChat} нет в базе данных");
+                        throw new ArgumentException($"Чат с id {idChat} не найден");
+                    }
+
+                        logger.Debug($"у чата с id {idChat} название изменено на {newName}");  
+                }
+            }
+            catch (Exception ex)
+            {
+                logger.Error(ex, $"Ошибка при попытке изменения названия чата с id {idChat} на имя {newName}");
+                throw Helper.GetHttpException(ex.Message, HttpStatusCode.BadRequest);
+            }
+        }
     }
 }

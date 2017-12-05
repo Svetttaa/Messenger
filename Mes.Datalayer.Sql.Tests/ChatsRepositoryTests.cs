@@ -33,7 +33,7 @@ namespace Mes.DataLayer.Sql.Tests
             _tempUsers1.Add(userRepository.Get(_tempUsers[1]));
 
             Assert.AreEqual("NewChat", result.Name);
-            Assert.AreEqual(_tempUsers1.OrderBy(u=>u.Id).First().Id, result.Members.OrderBy(u => u.Id).First().Id);
+            Assert.AreEqual(_tempUsers1.OrderBy(u => u.Id).First().Id, result.Members.OrderBy(u => u.Id).First().Id);
             Assert.AreEqual(_tempUsers1.OrderBy(u => u.Id).Last().Id, result.Members.OrderBy(u => u.Id).Last().Id);
         }
         [TestMethod]
@@ -50,8 +50,8 @@ namespace Mes.DataLayer.Sql.Tests
             _tempUsers.Add(user1.Id);
             _tempUsers.Add(user2.Id);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
-            var result =chatRepository.Create(_tempUsers, "NewChat");
-            chatRepository.Delete(result.Id,user1.Id);
+            var result = chatRepository.Create(_tempUsers, "NewChat");
+            chatRepository.Delete(result.Id, user1.Id);
             chatRepository.GetChat(result.Id);
         }
         [TestMethod]
@@ -63,7 +63,7 @@ namespace Mes.DataLayer.Sql.Tests
             UsersRepository userRepository = new UsersRepository(_connectionString);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
-            var resultCreate=chatRepository.Create(new[] {user1.Id,user2.Id}, "NewChat");
+            var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
             var resultGet = chatRepository.GetChat(resultCreate.Id);
             Assert.AreEqual("NewChat", resultGet.Name);
         }
@@ -78,7 +78,7 @@ namespace Mes.DataLayer.Sql.Tests
 
             var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
             var resultChats = chatRepository.GetUserChats(user1.Id);
-            Assert.AreEqual("NewChat",resultChats.First().Name);
+            Assert.AreEqual("NewChat", resultChats.First().Name);
         }
         [TestMethod]
         public void ShouldGetChatMembers()
@@ -114,11 +114,11 @@ namespace Mes.DataLayer.Sql.Tests
 
             UsersRepository userRepository = new UsersRepository(_connectionString);
             _tempUsers.Add(user1.Id);
-            
+
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
             var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
-            chatRepository.DeleteMembers(_tempUsers, resultCreate.Id,user2.Id);
+            chatRepository.DeleteMembers(_tempUsers, resultCreate.Id, user2.Id);
             var result = chatRepository.GetChatMembers(resultCreate.Id);
             Assert.AreEqual(1, result.Count());
         }
@@ -129,16 +129,33 @@ namespace Mes.DataLayer.Sql.Tests
             User user1 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
             User user2 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
             User user3 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
-           
+
             _tempUsers.Add(user3.Id);
 
             UsersRepository userRepository = new UsersRepository(_connectionString);
             ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
 
             var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
-            chatRepository.AddMembers(_tempUsers, resultCreate.Id,user2.Id);
+            chatRepository.AddMembers(_tempUsers, resultCreate.Id, user2.Id);
             var result = chatRepository.GetChatMembers(resultCreate.Id);
             Assert.AreEqual(3, result.Count());
+        }
+
+        [TestMethod]
+        public void ShouldChangeName()
+        {
+
+            User user1 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
+            User user2 = Datalayer.Sql.Tests.Helper.CreateUser(_connectionString, Datalayer.Sql.Tests.Helper.NewUser());
+
+            UsersRepository userRepository = new UsersRepository(_connectionString);
+            ChatsRepository chatRepository = new ChatsRepository(_connectionString, userRepository);
+
+            var resultCreate = chatRepository.Create(new[] { user1.Id, user2.Id }, "NewChat");
+            chatRepository.ChangeNameOfChat(resultCreate.Id, "HelloWorldChat");
+            var resultGet = chatRepository.GetChat(resultCreate.Id);
+            Assert.AreEqual("HelloWorldChat", resultGet.Name);
+
         }
     }
 }

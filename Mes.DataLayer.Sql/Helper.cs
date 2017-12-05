@@ -59,6 +59,16 @@ namespace Mes.DataLayer.Sql
             }
         }
 
+        public static void ExecuteNonQueryWithSqlCommand(string connectionString, SqlCommand command)
+        {
+            using (SqlConnection _con = new SqlConnection(connectionString))
+            {
+                _con.Open();
+                command.ExecuteNonQuery();
+                _con.Close();
+            }
+        }
+
         public static object ExecuteScalar(string connectionString, string sqlQuery)
         {
             try

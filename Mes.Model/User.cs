@@ -12,6 +12,12 @@ namespace Mes.Model
         public string Name { get; set; }
         public string Password { get; set; }
         public bool Disabled { get; set; } = false;
-        public  byte[] Ava { get; set; }
+        public byte[] Ava { get; set; }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
+
 }

@@ -29,7 +29,7 @@ namespace Mes.Client
             Chats = (List<Chat>)Client.GetUserChats(Properties.Settings.Default.CurrentUser.Id);
             if (Chats.Any())
             {
-                lblChats.Text = "Чаты";
+                lblChats.Visible = false;
                 ChatsTable.Visible = true;
                 foreach (var chat in Chats)
                 {
@@ -101,11 +101,8 @@ namespace Mes.Client
 
 
 
-        private void удалитьЧатToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteChat_Click(object sender, EventArgs e)
         {
-            //Guid chatId = Guid.Parse(((Label)sender).Name);
-            //Client.DeleteChat(chatId, Properties.Settings.Default.CurrentUser.Id);
-            //((Label)sender).Height = 0;
             ToolStripItem menuItem = sender as ToolStripItem;
             if (menuItem != null)
             {
@@ -118,46 +115,11 @@ namespace Mes.Client
                     Guid chatId = Guid.Parse(sourceControl.Name);
                     int rowIndex = ChatsTable.GetRow(sourceControl);
                     Client.DeleteChat(chatId, Properties.Settings.Default.CurrentUser.Id);
-                    RemoveRow(ChatsTable, rowIndex);
-                    //foreach (var c in ChatsTable.Controls.Find(chatId.ToString(), true))
-                    //    c.Height = 0;
-                    
-                    //ChatsTable.SetRow(new Label() { Height = 0, AutoSize = false }, rowIndex);
-
+                    Client.RemoveRow(ChatsTable, rowIndex);
                 }
             }
         }
 
-        private void RemoveRow(TableLayoutPanel panel, int index)
-        {
-            if (index >= panel.RowCount)
-            {
-                return;
-            }
-
-            // delete all controls of row that we want to delete
-            for (int i = 0; i < panel.ColumnCount; i++)
-            {
-                var control = panel.GetControlFromPosition(i, index);
-                panel.Controls.Remove(control);
-            }
-
-            // move up row controls that comes after row we want to remove
-            for (int i = index + 1; i < panel.RowCount; i++)
-            {
-                for (int j = 0; j < panel.ColumnCount; j++)
-                {
-                    var control = panel.GetControlFromPosition(j, i);
-                    if (control != null)
-                    {
-                        panel.SetRow(control, i - 1);
-                    }
-                }
-            }
-
-            // remove last row
-            //panel.RowStyles.RemoveAt(panel.RowCount - 1);
-            //panel.RowCount--;
-        }
+        
     }
 }

@@ -69,13 +69,13 @@ namespace Mes.Client
                         {
                             actionPB.BackgroundImage = Properties.Resources.chat;
                             actionPB.Cursor = Cursors.Hand;
-                            actionPB.Click += new System.EventHandler(OpenChatOnClick);
+                            actionPB.Click += new EventHandler(OpenChatOnClick);
                         }
                         else
                         {
                             actionPB.BackgroundImage = Properties.Resources.add_user;
                             actionPB.Cursor = Cursors.Hand;
-                            actionPB.Click += new System.EventHandler(CreateChatOnClick);
+                            actionPB.Click += new EventHandler(CreateChatOnClick);
                         }
 
                         tblUsers.Controls.Add(actionPB, 2, tblUsers.RowCount - 1);
@@ -111,7 +111,7 @@ namespace Mes.Client
             Guid idUser = Guid.Parse(((PictureBox)sender).Name);
             Chat newChat = new Chat()
             {
-                Name = Client.GetUser(idUser).Name,
+                Name = Client.GetUser(idUser).Name+", "+ Properties.Settings.Default.CurrentUser.Name,
                 Members = new List<User>() { Client.GetUser(Properties.Settings.Default.CurrentUser.Id), Client.GetUser(idUser) }
             };
             newChat = (Chat)Client.CreateChat(newChat);

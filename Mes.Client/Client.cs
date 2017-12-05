@@ -183,6 +183,47 @@ namespace Mes.Client
 
             return new User();
         }
+
+        public static void AddMembers( Chat chat)
+        {
+            var response = _client.PostAsJsonAsync(@"chats/addMembers", chat).Result;
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception e)
+            {
+                var s = response.Content.ReadAsStringAsync().Result;
+
+                if (String.IsNullOrWhiteSpace(s))
+                    MessageBox.Show(e.Message);
+
+                else
+                    MessageBox.Show(s);
+            }
+        }
+
+        public static void DeleteMembers(Chat chat)
+        {
+            var response = _client.PostAsJsonAsync(@"chats/deleteMembers", chat).Result;
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception e)
+            {
+                var s = response.Content.ReadAsStringAsync().Result;
+
+                if (String.IsNullOrWhiteSpace(s))
+                    MessageBox.Show(e.Message);
+
+                else
+                    MessageBox.Show(s);
+
+            }
+        }
         #endregion
 
         #region Chats 
@@ -284,6 +325,26 @@ namespace Mes.Client
             return new List<User>();
 
         }
+
+        public static void ChangeNameOfChat(Chat chat)
+        {
+            var response = _client.PostAsJsonAsync(@"chats/changeName", chat).Result;
+            try
+            {
+                response.EnsureSuccessStatusCode();
+
+            }
+            catch (Exception e)
+            {
+                var s = response.Content.ReadAsStringAsync().Result;
+
+                if (String.IsNullOrWhiteSpace(s))
+                    MessageBox.Show(e.Message);
+
+                else
+                    MessageBox.Show(s);
+            }
+        }
         #endregion
 
         #region Messages
@@ -323,6 +384,45 @@ namespace Mes.Client
                 MessageBox.Show(e.Message);
             }
             return new Model.Message();
+        }
+
+        public static void DeleteMessage(Guid idMessage)
+        {
+            var response = _client.DeleteAsync(@"messages/" + idMessage).Result;
+
+            try
+            {
+                response.EnsureSuccessStatusCode();
+            }
+            catch (Exception e)
+            {
+                var s = response.Content.ReadAsStringAsync().Result;
+
+                if (String.IsNullOrWhiteSpace(s))
+                    MessageBox.Show(e.Message);
+
+                else
+                    MessageBox.Show(s);
+            }
+        }
+
+        public static object SearchMessages(Model.Message message)
+        {
+            var response = _client.PostAsJsonAsync(@"messages/search", message).Result.Content;
+
+            try
+            {
+                return response.ReadAsAsync<List<Model.Message>>().Result;
+            }
+            catch (UnsupportedMediaTypeException)
+            {
+                MessageBox.Show(response.ReadAsStringAsync().Result);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message);
+            }
+            return new List<Model.Message>();
         }
         #endregion
         public static Label CreateLabel(string name, int height, int width, MouseEventHandler clickHandler=null)
@@ -369,6 +469,35 @@ namespace Mes.Client
                 Size = new Size(width, hight),
                 Name = name
             };
+        }
+
+        public static void RemoveRow(TableLayoutPanel panel, int index)
+        {
+            if (index >= panel.RowCount)
+            {
+                return;
+            }
+
+            // delete all controls of row that we want to delete
+            for (int i = 0; i < panel.ColumnCount; i++)
+            {
+                var control = panel.GetControlFromPosition(i, index);
+                panel.Controls.Remove(control);
+            }
+
+            // move up row controls that comes after row we want to remove
+            for (int i = index + 1; i < panel.RowCount; i++)
+            {
+                for (int j = 0; j < panel.ColumnCount; j++)
+                {
+                    var control = panel.GetControlFromPosition(j, i);
+                    if (control != null)
+                    {
+                        panel.SetRow(control, i - 1);
+                    }
+                }
+            }
+
         }
     }
 

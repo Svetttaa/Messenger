@@ -170,6 +170,7 @@
             this.btnDisabled.TabIndex = 12;
             this.btnDisabled.Text = "Отключить профиль";
             this.btnDisabled.UseVisualStyleBackColor = false;
+            this.btnDisabled.Visible = false;
             this.btnDisabled.Click += new System.EventHandler(this.btnDisabled_Click);
             this.btnDisabled.MouseHover += new System.EventHandler(this.button2_MouseHover);
             // 
